@@ -9,9 +9,6 @@ import (
 
 // TODO: add mumblehash3
 // TODO: add superfasthash
-// TODO: check signedness of characters in hash functions
-// TODO: add test cases for the hashes
-
 
 type stringHash32 struct {
 	h uint32

@@ -1,0 +1,255 @@
+package dgohash
+
+import (
+	"testing"
+	"hash"
+)
+
+type _Golden struct {
+	out uint32
+	in  string
+}
+
+// These tables were all generated from reference C implementations of the associated hashes.
+
+var golden_java = []_Golden{
+   {0x00000000,""},
+   {0x00000061,"a"},
+   {0x00000c21,"ab"},
+   {0x00017862,"abc"},
+   {0x002d9442,"abcd"},
+   {0x0584f463,"abcde"},
+   {0xab199863,"abcdef"},
+   {0xb8197464,"abcdefg"},
+   {0x4b151884,"abcdefgh"},
+   {0x178df865,"abcdefghi"},
+   {0xda3114a5,"abcdefghij"},
+   {0x507cbe5d,"Discard medicine more than two years old."},
+   {0xcf8332bc,"He who has a shady past knows that nice guys finish last."},
+   {0x94ddaa0e,"I wouldn't marry him with a ten foot pole."},
+   {0xd1a67f32,"Free! Free!/A trip/to Mars/for 900/empty jars/Burma Shave"},
+   {0x29e1993d,"The days of the digital watch are numbered.  -Tom Stoppard"},
+   {0x46b8e871,"Nepal premier won't resign."},
+   {0x80a347dc,"For every action there is an equal and opposite government program."},
+   {0xb560b45d,"His money is twice tainted: 'taint yours and 'taint mine."},
+   {0x123c79c6,"There is no reason for any individual to have a computer in their home. -Ken Olsen, 1977"},
+   {0x3f1ff283,"It's a tiny change to the code and not completely disgusting. - Bob Manchek"},
+   {0xbf045f20,"size:  a.out:  bad magic"},
+   {0x30642382,"The major problem is with sendmail.  -Mark Horton"},
+   {0xf11f3607,"Give me a rock, paper and scissors and I will move the world.  CCFestoon"},
+   {0xb68626c4,"If the enemy is within range, then so are you."},
+   {0x872d8aba,"It's well we cannot hear the screams/That we create in others' dreams."},
+   {0xd68213e8,"You remind me of a TV show, but that's all right: I watch it anyway."},
+   {0xd55e6f3e,"C is as portable as Stonehedge!!"},
+   {0xb34d3565,"Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"},
+   {0x1f5a0d48,"The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
+   {0xda3df8dd,"How can you write a big system without C++?  -Paul Glick"},
+};
+
+var golden_djb32 = []_Golden{
+	{0x00001505, ""},
+	{0x0002b606, "a"},
+	{0x00597728, "ab"},
+	{0x0b885c8b, "abc"},
+	{0x7c93ee4f, "abcd"},
+	{0x0f11b894, "abcde"},
+	{0xf148cb7a, "abcdef"},
+	{0x1a623b21, "abcdefg"},
+	{0x66a99fa9, "abcdefgh"},
+	{0x3bdd9532, "abcdefghi"},
+	{0xb7903bdc, "abcdefghij"},
+	{0xa61e3ba6, "Discard medicine more than two years old."},
+	{0xf9827a7b, "He who has a shady past knows that nice guys finish last."},
+	{0xa68ea4c5, "I wouldn't marry him with a ten foot pole."},
+	{0xe31c5f19, "Free! Free!/A trip/to Mars/for 900/empty jars/Burma Shave"},
+	{0xbaef90a4, "The days of the digital watch are numbered.  -Tom Stoppard"},
+	{0xa2e15ace, "Nepal premier won't resign."},
+	{0x3dd4f3e1, "For every action there is an equal and opposite government program."},
+	{0xeffef6c6, "His money is twice tainted: 'taint yours and 'taint mine."},
+	{0xbfd5d7e7, "There is no reason for any individual to have a computer in their home. -Ken Olsen, 1977"},
+	{0x14a6762e, "It's a tiny change to the code and not completely disgusting. - Bob Manchek"},
+	{0x9dc2ebc3, "size:  a.out:  bad magic"},
+	{0x2fc35375, "The major problem is with sendmail.  -Mark Horton"},
+	{0xbd0267c8, "Give me a rock, paper and scissors and I will move the world.  CCFestoon"},
+	{0x682419cf, "If the enemy is within range, then so are you."},
+	{0x82f44aeb, "It's well we cannot hear the screams/That we create in others' dreams."},
+	{0x41db5feb, "You remind me of a TV show, but that's all right: I watch it anyway."},
+	{0xa3b3be6d, "C is as portable as Stonehedge!!"},
+	{0x42b489b4, "Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"},
+	{0x57e38ab3, "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
+	{0x9f8d455a, "How can you write a big system without C++?  -Paul Glick"},
+}
+
+var golden_elf32 = []_Golden{
+	{0x00000000, ""},
+	{0x00000061, "a"},
+	{0x00000672, "ab"},
+	{0x00006783, "abc"},
+	{0x00067894, "abcd"},
+	{0x006789a5, "abcde"},
+	{0x06789ab6, "abcdef"},
+	{0x0789aba7, "abcdefg"},
+	{0x089abaa8, "abcdefgh"},
+	{0x09abaa69, "abcdefghi"},
+	{0x0abaa66a, "abcdefghij"},
+	{0x0ab8c77e, "Discard medicine more than two years old."},
+	{0x0c2895ee, "He who has a shady past knows that nice guys finish last."},
+	{0x0d88846e, "I wouldn't marry him with a ten foot pole."},
+	{0x00f84415, "Free! Free!/A trip/to Mars/for 900/empty jars/Burma Shave"},
+	{0x0ffe12f4, "The days of the digital watch are numbered.  -Tom Stoppard"},
+	{0x0ce8fd4e, "Nepal premier won't resign."},
+	{0x0db274ae, "For every action there is an equal and opposite government program."},
+	{0x00bd1fee, "His money is twice tainted: 'taint yours and 'taint mine."},
+	{0x0c80df37, "There is no reason for any individual to have a computer in their home. -Ken Olsen, 1977"},
+	{0x0b49043b, "It's a tiny change to the code and not completely disgusting. - Bob Manchek"},
+	{0x04724b83, "size:  a.out:  bad magic"},
+	{0x02955e6e, "The major problem is with sendmail.  -Mark Horton"},
+	{0x035111fe, "Give me a rock, paper and scissors and I will move the world.  CCFestoon"},
+	{0x0a07b02e, "If the enemy is within range, then so are you."},
+	{0x0c2c655e, "It's well we cannot hear the screams/That we create in others' dreams."},
+	{0x0e8fc43e, "You remind me of a TV show, but that's all right: I watch it anyway."},
+	{0x02450da1, "C is as portable as Stonehedge!!"},
+	{0x03568a09, "Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"},
+	{0x0aa09cd5, "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
+	{0x0810f11b, "How can you write a big system without C++?  -Paul Glick"},
+}
+
+var golden_sdbm = []_Golden{
+	{0x00000000, ""},
+	{0x00000061, "a"},
+	{0x00611841, "ab"},
+	{0x3025f862, "abc"},
+	{0xd1ba2082, "abcd"},
+	{0xbd500063, "abcde"},
+	{0x971318c3, "abcdef"},
+	{0x46761864, "abcdefg"},
+	{0x6f740104, "abcdefgh"},
+	{0x6e904065, "abcdefghi"},
+	{0x75e4d945, "abcdefghij"},
+	{0x046d355d, "Discard medicine more than two years old."},
+	{0x718c9e9c, "He who has a shady past knows that nice guys finish last."},
+	{0x14c663ae, "I wouldn't marry him with a ten foot pole."},
+	{0xf21ea712, "Free! Free!/A trip/to Mars/for 900/empty jars/Burma Shave"},
+	{0x2ab38c1d, "The days of the digital watch are numbered.  -Tom Stoppard"},
+	{0x354c9f71, "Nepal premier won't resign."},
+	{0x8b82905c, "For every action there is an equal and opposite government program."},
+	{0x2157591d, "His money is twice tainted: 'taint yours and 'taint mine."},
+	{0xdda5cb46, "There is no reason for any individual to have a computer in their home. -Ken Olsen, 1977"},
+	{0x87619563, "It's a tiny change to the code and not completely disgusting. - Bob Manchek"},
+	{0x2dfefd80, "size:  a.out:  bad magic"},
+	{0x541955e2, "The major problem is with sendmail.  -Mark Horton"},
+	{0xe8d7cbc7, "Give me a rock, paper and scissors and I will move the world.  CCFestoon"},
+	{0x434fdd24, "If the enemy is within range, then so are you."},
+	{0x3bd7247a, "It's well we cannot hear the screams/That we create in others' dreams."},
+	{0x777bd008, "You remind me of a TV show, but that's all right: I watch it anyway."},
+	{0x60ac769e, "C is as portable as Stonehedge!!"},
+	{0x65db3345, "Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"},
+	{0x3a182aa8, "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
+	{0x2129ea9d, "How can you write a big system without C++?  -Paul Glick"},
+}
+
+var golden_sqlite = []_Golden{
+	{0x00000000, ""},
+	{0x00000061, "a"},
+	{0x0000030b, "ab"},
+	{0x00001b30, "abc"},
+	{0x0000c2d4, "abcd"},
+	{0x0006d411, "abcde"},
+	{0x003074ff, "abcdef"},
+	{0x01b3d360, "abcdefg"},
+	{0x0c2d4808, "abcdefgh"},
+	{0x6d470821, "abcdefghi"},
+	{0x077f4943, "abcdefghij"},
+	{0xbfd88981, "Discard medicine more than two years old."},
+	{0x3d7ed466, "He who has a shady past knows that nice guys finish last."},
+	{0x1d05fae6, "I wouldn't marry him with a ten foot pole."},
+	{0x68662562, "Free! Free!/A trip/to Mars/for 900/empty jars/Burma Shave"},
+	{0x92d13743, "The days of the digital watch are numbered.  -Tom Stoppard"},
+	{0x0c85b42d, "Nepal premier won't resign."},
+	{0xb4edacc0, "For every action there is an equal and opposite government program."},
+	{0xe6412c11, "His money is twice tainted: 'taint yours and 'taint mine."},
+	{0x0ff516f4, "There is no reason for any individual to have a computer in their home. -Ken Olsen, 1977"},
+	{0x575c3671, "It's a tiny change to the code and not completely disgusting. - Bob Manchek"},
+	{0xd6f1fcda, "size:  a.out:  bad magic"},
+	{0x07ef9f3a, "The major problem is with sendmail.  -Mark Horton"},
+	{0x08f40b55, "Give me a rock, paper and scissors and I will move the world.  CCFestoon"},
+	{0x16c45448, "If the enemy is within range, then so are you."},
+	{0x62c3718a, "It's well we cannot hear the screams/That we create in others' dreams."},
+	{0x898c6d90, "You remind me of a TV show, but that's all right: I watch it anyway."},
+	{0xe13a717a, "C is as portable as Stonehedge!!"},
+	{0x71f77adf, "Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"},
+	{0x658886ca, "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
+	{0xb1d7f9e5, "How can you write a big system without C++?  -Paul Glick"},
+}
+
+var golden_jenkins = []_Golden{
+	{0x00000000, ""},
+	{0xca2e9442, "a"},
+	{0x45e61e58, "ab"},
+	{0xed131f5b, "abc"},
+	{0xcd8b6206, "abcd"},
+	{0xb98559fc, "abcde"},
+	{0x0161526f, "abcdef"},
+	{0x4ac70178, "abcdefg"},
+	{0x44d2d3e1, "abcdefgh"},
+	{0xc8b4ca7d, "abcdefghi"},
+	{0x7031289d, "abcdefghij"},
+	{0x41454415, "Discard medicine more than two years old."},
+	{0xd6995686, "He who has a shady past knows that nice guys finish last."},
+	{0xd77ff8d6, "I wouldn't marry him with a ten foot pole."},
+	{0x353105d6, "Free! Free!/A trip/to Mars/for 900/empty jars/Burma Shave"},
+	{0x2599d1ab, "The days of the digital watch are numbered.  -Tom Stoppard"},
+	{0x402a21c2, "Nepal premier won't resign."},
+	{0xcc522896, "For every action there is an equal and opposite government program."},
+	{0xa869b6fb, "His money is twice tainted: 'taint yours and 'taint mine."},
+	{0x1a8b3dcd, "There is no reason for any individual to have a computer in their home. -Ken Olsen, 1977"},
+	{0x660a13c1, "It's a tiny change to the code and not completely disgusting. - Bob Manchek"},
+	{0x7878a798, "size:  a.out:  bad magic"},
+	{0x66e9dba8, "The major problem is with sendmail.  -Mark Horton"},
+	{0xbc1b46f0, "Give me a rock, paper and scissors and I will move the world.  CCFestoon"},
+	{0x4f6762bf, "If the enemy is within range, then so are you."},
+	{0x183959f7, "It's well we cannot hear the screams/That we create in others' dreams."},
+	{0x6aff9b36, "You remind me of a TV show, but that's all right: I watch it anyway."},
+	{0xb9699852, "C is as portable as Stonehedge!!"},
+	{0xa4fde64f, "Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"},
+	{0xf162dacb, "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
+	{0x2d3ac755, "How can you write a big system without C++?  -Paul Glick"},
+}
+
+func TestJava(t *testing.T) {
+	testGolden(t, NewJava32(), golden_java, "java")
+}
+
+func TestDbj32(t *testing.T) {
+	testGolden(t, NewDjb32(), golden_djb32, "djb")
+}
+
+func TestElf32(t *testing.T) {
+	testGolden(t, NewElf32(), golden_elf32, "elf32")
+}
+
+func TestSDBM(t *testing.T) {
+	testGolden(t, NewSDBM32(), golden_sdbm, "sdbm")
+}
+
+func TestSqlite3(t *testing.T) {
+	testGolden(t, NewSQLite32(), golden_sqlite, "sqlite3")
+}
+
+func TestJenkins(t *testing.T) {
+	testGolden(t, NewJenkins32(), golden_jenkins, "jenkins")
+}
+
+func testGolden(t *testing.T, h hash.Hash32, golden []_Golden, which string) {
+
+	for _, g := range golden {
+		h.Reset()
+		h.Write([]byte(g.in))
+
+		sum := h.Sum32()
+
+		if sum != g.out {
+			t.Errorf("%s(%s) = 0x%x want 0x%x", which, g.in, sum, g.out)
+		}
+	}
+}
