@@ -65,6 +65,29 @@ func (sh *djb2StringHash32) Write(b []byte) (int, os.Error) {
 	return len(b), nil
 }
 
+type elf32StringHash32 struct {
+	stringHash32
+}
+
+// NewElf32 returns a new hash.Hash32 object computing the ELF32 symbol hash
+func NewElf32() hash.Hash32 {
+	return new(elf32StringHash32)
+}
+
+func (sh *elf32StringHash32) Write(b []byte) (int, os.Error) {
+
+	for _, c := range b {
+		sh.h = (sh.h << 4) + uint32(c)
+		g := sh.h & 0xf0000000
+		if g != 0 {
+			sh.h ^= g >> 24
+			sh.h &= ^g
+		}
+	}
+
+	return len(b), nil
+}
+
 type sdbmStringHash32 struct {
 	stringHash32
 }
