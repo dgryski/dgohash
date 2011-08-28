@@ -49,8 +49,8 @@ type djb2StringHash32 struct {
 	stringHash32
 }
 
-// NewDjb32 returns a new hash.Hash32 object, computing Daniel J. Bernstein's hash, used in ELF32, glib, ...
-func NewDjb2StringHash32() hash.Hash32 {
+// NewDjb32 returns a new hash.Hash32 object, computing Daniel J. Bernstein's hash
+func NewDjb32() hash.Hash32 {
 	sh := new(djb2StringHash32)
 	sh.Reset()
 	return sh
@@ -85,8 +85,8 @@ type sqlite3StringHash32 struct {
 	stringHash32
 }
 
-// NewSQLite3tringHash32 returns a new hash.Hash32 object, computing the string hash function from SQLite3
-func NewSQLite3StringHash32() hash.Hash32 {
+// NewSQLite32 returns a new hash.Hash32 object, computing the string hash function from SQLite3
+func NewSQLite32() hash.Hash32 {
 	return new(sqlite3StringHash32)
 }
 
