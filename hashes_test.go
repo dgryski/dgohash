@@ -1,3 +1,6 @@
+// Unit tests for hash functions
+// Copyright (c) 2011 Damian Gryski <damian@gryski.com>
+// Licensed under the GPLv3, or at your option any later version.
 package dgohash
 
 import (
