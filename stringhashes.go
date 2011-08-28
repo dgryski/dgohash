@@ -1,20 +1,26 @@
+// Package dgohash implements a number of well-known string hashing functions.
+// They all conform to the hash.Hash32 interface.
 package dgohash
 
-import "os" // for os.Error
+import (
+	"os" // for os.Error
+	"hash"
+)
 
 // TODO: add mumblehash3
 // TODO: add superfasthash
 // TODO: check signedness of characters in hash functions
 // TODO: add test cases for the hashes
 
-type StringHash32 struct {
+
+type stringHash32 struct {
 	h uint32
 }
 
-func (sh *StringHash32) Size() int     { return 4 }
-func (sh *StringHash32) Sum32() uint32 { return sh.h }
-func (sh *StringHash32) Reset()        { sh.h = 0 }
-func (sh *StringHash32) Sum() []byte {
+func (sh *stringHash32) Size() int     { return 4 }
+func (sh *stringHash32) Sum32() uint32 { return sh.h }
+func (sh *stringHash32) Reset()        { sh.h = 0 }
+func (sh *stringHash32) Sum() []byte {
 	p := make([]byte, 4)
 	p[0] = byte(sh.h >> 24)
 	p[1] = byte(sh.h >> 16)
@@ -23,82 +29,84 @@ func (sh *StringHash32) Sum() []byte {
 	return p
 }
 
-// default java string.hashCode() algorithm
-type JavaStringHash32 struct {
-	StringHash32
+type javaStringHash32 struct {
+	stringHash32
 }
 
-func NewJavaStringHash32() *JavaStringHash32 {
-	return new(JavaStringHash32)
+// NewJava32 returns a new hash.Hash32 object, computing Java's string.hashCode() algorithm
+func NewJava32() hash.Hash32 {
+	return new(javaStringHash32)
 }
 
-func (j *JavaStringHash32) Write(b []byte) (int, os.Error) {
+func (sh *javaStringHash32) Write(b []byte) (int, os.Error) {
 	for _, c := range b {
-		j.h = 31*j.h + uint32(c)
+		sh.h = 31*sh.h + uint32(c)
 	}
 	return len(b), nil
 }
 
-// Bernstein hash: used in Elf32, Glib, ...
-type Djb2StringHash32 struct {
-	StringHash32
+type djb2StringHash32 struct {
+	stringHash32
 }
 
-func NewDjb2StringHash32() *Djb2StringHash32 {
-	sh := new(Djb2StringHash32)
+// NewDjb32 returns a new hash.Hash32 object, computing Daniel J. Bernstein's hash, used in ELF32, glib, ...
+func NewDjb2StringHash32() hash.Hash32 {
+	sh := new(djb2StringHash32)
 	sh.Reset()
 	return sh
 }
 
-func (sh *Djb2StringHash32) Reset() { sh.h = 5381 }
+func (sh *djb2StringHash32) Reset() { sh.h = 5381 }
 
-func (j *Djb2StringHash32) Write(b []byte) (int, os.Error) {
+func (sh *djb2StringHash32) Write(b []byte) (int, os.Error) {
 	for _, c := range b {
-		j.h = 33*j.h + uint32(c)
+		sh.h = 33*sh.h + uint32(c)
 	}
 	return len(b), nil
 }
 
-// hash function from sdbm
-type SDBMStringHash32 struct {
-	StringHash32
+type sdbmStringHash32 struct {
+	stringHash32
 }
 
-func NewSDBMStringHash32() *SDBMStringHash32 {
-	return new(SDBMStringHash32)
+// NewSDBM32 returns a new hash.Hash32 object, computing the string hash function from SDBM
+func NewSDBM32() hash.Hash32 {
+	return new(sdbmStringHash32)
 }
 
-func (j *SDBMStringHash32) Write(b []byte) (int, os.Error) {
+func (sh *sdbmStringHash32) Write(b []byte) (int, os.Error) {
 	for _, c := range b {
-		j.h = uint32(c) + (j.h << 6) + (j.h << 16) - j.h
+		sh.h = uint32(c) + (sh.h << 6) + (sh.h << 16) - sh.h
 	}
 	return len(b), nil
 }
 
-type SQLite3StringHash32 struct {
-	StringHash32
+type sqlite3StringHash32 struct {
+	stringHash32
 }
 
-func NewSQLite3StringHash32() *SQLite3StringHash32 {
-	return new(SQLite3StringHash32)
+// NewSQLite3tringHash32 returns a new hash.Hash32 object, computing the string hash function from SQLite3
+func NewSQLite3StringHash32() hash.Hash32 {
+	return new(sqlite3StringHash32)
 }
 
-func (sh *SQLite3StringHash32) Write(b []byte) (int, os.Error) {
+func (sh *sqlite3StringHash32) Write(b []byte) (int, os.Error) {
 	for _, c := range b {
 		sh.h = (sh.h << 3) ^ sh.h ^ uint32(c)
 	}
 	return len(b), nil
 }
 
-type JenkinsStringHash32 struct {
-	StringHash32
+type jenkinsStringHash32 struct {
+	stringHash32
 }
 
-func NewJenkinsStringHash32() *JenkinsStringHash32 {
-	return new(JenkinsStringHash32)
+// NewJenkinsStringHash32 returns a new hash.Hash32 object, computing the Robert Jenkins' one-at-a-time string hash function
+func NewJenkins32() hash.Hash32 {
+	return new(jenkinsStringHash32)
 }
 
-func (sh *JenkinsStringHash32) Write(b []byte) (int, os.Error) {
+func (sh *jenkinsStringHash32) Write(b []byte) (int, os.Error) {
 	for _, c := range b {
 		sh.h += uint32(c)
 		sh.h += (sh.h << 10)
@@ -107,10 +115,10 @@ func (sh *JenkinsStringHash32) Write(b []byte) (int, os.Error) {
 	return len(b), nil
 }
 
-func (sh *JenkinsStringHash32) Sum32() uint32 {
+func (sh *jenkinsStringHash32) Sum32() uint32 {
 	h := sh.h // copy so we don't mess with the internal state
 
-        // Jenkins' finalize
+	// Jenkins' finalize
 	h += (h << 3)
 	h ^= (h >> 11)
 	h += (h << 15)
@@ -118,7 +126,8 @@ func (sh *JenkinsStringHash32) Sum32() uint32 {
 	return h
 }
 
-func (sh *JenkinsStringHash32) Sum() []byte {
+// This is a duplicate of stringHash32 Sum(), above, but is needed because otherwise a call to Sum() will call stringHash32.Sum32(), and not the Jenkins' finalize
+func (sh *jenkinsStringHash32) Sum() []byte {
 
 	h := sh.Sum32()
 
