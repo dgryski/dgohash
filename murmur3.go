@@ -81,8 +81,7 @@ func (m *murmur3) Write(data []byte) (int, os.Error) {
 		data = data[need:]
 	}
 
-        // FIXME: I don't understand this 'rem' calculation
-	rem := (m.rem + length) & 3
+	rem := length & 3
 	b := length - rem
 
 	for i := 0; i < b; i += 4 {
