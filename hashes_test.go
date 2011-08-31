@@ -253,6 +253,40 @@ var golden_murmur3 = []_Golden{
 	{0x04944630, "How can you write a big system without C++?  -Paul Glick"},
 }
 
+var golden_superfast = []_Golden{
+	{0x00000000, ""},
+	{0x93642e87, "a"},
+	{0x5b8c0ec3, "ab"},
+	{0xe5186b3a, "abc"},
+	{0x3ab452d8, "abcd"},
+	{0x84786722, "abcde"},
+	{0xbe7c6fe4, "abcdef"},
+	{0x3dad41af, "abcdefg"},
+	{0xff7cfe86, "abcdefgh"},
+	{0xa73e3541, "abcdefghi"},
+	{0x2d7c0783, "abcdefghij"},
+	{0xf3f9c606, "Discard medicine more than two years old."},
+	{0x1d68aee7, "He who has a shady past knows that nice guys finish last."},
+	{0xb6929c96, "I wouldn't marry him with a ten foot pole."},
+	{0x3a79f2c8, "Free! Free!/A trip/to Mars/for 900/empty jars/Burma Shave"},
+	{0xc2169976, "The days of the digital watch are numbered.  -Tom Stoppard"},
+	{0x24d1092a, "Nepal premier won't resign."},
+	{0x7dcdc1cf, "For every action there is an equal and opposite government program."},
+	{0x1004d947, "His money is twice tainted: 'taint yours and 'taint mine."},
+	{0x5237d840, "There is no reason for any individual to have a computer in their home. -Ken Olsen, 1977"},
+	{0x193828c4, "It's a tiny change to the code and not completely disgusting. - Bob Manchek"},
+	{0xcf2cd792, "size:  a.out:  bad magic"},
+	{0xee993cb6, "The major problem is with sendmail.  -Mark Horton"},
+	{0xb6c84172, "Give me a rock, paper and scissors and I will move the world.  CCFestoon"},
+	{0x3b4039cf, "If the enemy is within range, then so are you."},
+	{0x5659e64b, "It's well we cannot hear the screams/That we create in others' dreams."},
+	{0x52ddc48a, "You remind me of a TV show, but that's all right: I watch it anyway."},
+	{0xd650693f, "C is as portable as Stonehedge!!"},
+	{0x5a5737f0, "Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"},
+	{0xcac073c5, "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
+	{0x494c35dd, "How can you write a big system without C++?  -Paul Glick"},
+}
+
 func TestJava(t *testing.T) {
 	testGolden(t, NewJava32(), golden_java, "java")
 }
@@ -279,7 +313,7 @@ func TestJenkins(t *testing.T) {
 
 func TestMurmur(t *testing.T) {
 
-        // test the incremental hashing logic
+	// test the incremental hashing logic
 	m := NewMurmur3_x86_32()
 	m.Write([]byte("hello"))
 	m.Write([]byte("h"))
@@ -295,8 +329,8 @@ func TestMurmur(t *testing.T) {
 		t.Errorf("murmur3 incremental failed: got %08x", h)
 	}
 
-        m.Reset();
-        m.Write([]byte("hellohellohellohello"));
+	m.Reset()
+	m.Write([]byte("hellohellohellohello"))
 
 	h = m.Sum32()
 
@@ -307,6 +341,37 @@ func TestMurmur(t *testing.T) {
 	testGolden(t, m, golden_murmur3, "murmur3")
 
 	// add murmur's own verification test here?
+
+}
+
+func TestSuperFastHash(t *testing.T) {
+
+	// test the incremental hashing logic
+	m := NewSuperFastHash()
+	m.Write([]byte("hello"))
+	m.Write([]byte("h"))
+	m.Write([]byte("e"))
+	m.Write([]byte("l"))
+	m.Write([]byte("l"))
+	m.Write([]byte("o"))
+	m.Write([]byte("hellohello"))
+
+	h := m.Sum32()
+
+	if h != 0x54de96ed {
+		t.Errorf("superfast: incremental failed: got %08x", h)
+	}
+
+	m.Reset()
+	m.Write([]byte("hellohellohellohello"))
+
+	h = m.Sum32()
+
+	if h != 0x54de96ed {
+		t.Errorf("superfast failed: got %08x", h)
+	}
+
+	testGolden(t, m, golden_superfast, "superfast")
 
 }
 
