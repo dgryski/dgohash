@@ -1,6 +1,9 @@
 // This file is an implementation of the murmur3 x86_32 hash function by Austin Appleby 
-// This code is translated from the public domain source code at http://code.google.com/p/smhasher/source/browse/trunk/MurmurHash3.cpp
-// There are also 128 bit hashes, not included here. (yet...)
+// The code is translated from the public domain source code at http://code.google.com/p/smhasher/source/browse/trunk/MurmurHash3.cpp
+// This implementation Copyright (c) 2011 Damian Gryski <damian@gryski.com>
+// Licensed under the GPLv3, or at your option any later version
+
+// Murmur3 also has 128-bit hashes, which are not (yet) included here.
 
 package dgohash
 
@@ -9,20 +12,22 @@ import (
 	"os"
 )
 
+// rotate x left by r bits
 func rotl32(x uint32, r uint8) uint32 {
 	return (x << r) | (x >> (32 - r))
 }
 
 type murmur3 struct {
-	h1     uint32
-	t      [4]byte
-	length uint32
-	rem    int
+	h1     uint32  // our hash state
+	length uint32  // current bytes written so far (needed for finalize)
+	t      [4]byte // as-yet-unprocessed bytes
+	rem    int     // how many bytes in t[] are valid
 }
 
 func (m *murmur3) Size() int { return 4 }
 func (m *murmur3) Reset()    { m.h1 = uint32(0); m.length = 0; m.rem = 0 }
 
+// NewMurmur3_x86_32 returns a new hash.Hash32 object computing the Murmur3 x86 32-bit hash
 func NewMurmur3_x86_32() hash.Hash32 {
 	return new(murmur3)
 }
@@ -30,6 +35,7 @@ func NewMurmur3_x86_32() hash.Hash32 {
 const c1 = uint32(0xcc9e2d51)
 const c2 = uint32(0x1b873593)
 
+// computes new hash state h1 merged with bytes in k1
 func update(h1, k1 uint32) uint32 {
 	k1 *= c1
 	k1 = rotl32(k1, 15)
@@ -48,12 +54,17 @@ func (m *murmur3) Write(data []byte) (int, os.Error) {
 
 	m.length += uint32(length)
 
+	// Since the hash actually processes uint32s, but we allow []byte to be
+	// Written, we have to keep track of the tail bytes that haven't yet
+	// been processed, and do that on next round if we can scrounge
+	// together a uint32.  If they're not merged here, they're pulled in
+	// during the finalize step
 	if m.rem != 0 {
 
 		need := 4 - m.rem
 
 		if length < need {
-			for i := 0; i < len(data); i++ {
+			for i := 0; i < length; i++ {
 				m.t[m.rem] = data[i]
 				m.rem++
 			}
@@ -81,6 +92,7 @@ func (m *murmur3) Write(data []byte) (int, os.Error) {
 		data = data[need:]
 	}
 
+	// figure out the length of the tail, and round down b
 	rem := length & 3
 	b := length - rem
 
@@ -90,7 +102,7 @@ func (m *murmur3) Write(data []byte) (int, os.Error) {
 	}
 
 	// copy the tail for later
-        // this should probably be unrolled
+	// this should probably be unrolled, since 0 <= rem <= 3
 	for i := 0; i < rem; i++ {
 		m.t[i] = data[b+i]
 	}
@@ -101,8 +113,8 @@ func (m *murmur3) Write(data []byte) (int, os.Error) {
 }
 
 func (m *murmur3) Sum() []byte {
-	p := make([]byte, 4)
 	h1 := m.Sum32()
+	p := make([]byte, 4)
 	p[0] = byte(h1 >> 24)
 	p[1] = byte(h1 >> 16)
 	p[2] = byte(h1 >> 8)
@@ -110,6 +122,7 @@ func (m *murmur3) Sum() []byte {
 	return p
 }
 
+// murmur3 finalize step
 func (m *murmur3) Sum32() uint32 {
 
 	k1 := uint32(0)
