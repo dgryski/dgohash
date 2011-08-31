@@ -36,16 +36,14 @@ const c1 = uint32(0xcc9e2d51)
 const c2 = uint32(0x1b873593)
 
 // computes new hash state h1 merged with bytes in k1
-func update(h1, k1 uint32) uint32 {
+func (m *murmur3) update(k1 uint32) {
 	k1 *= c1
 	k1 = rotl32(k1, 15)
 	k1 *= c2
 
-	h1 ^= k1
-	h1 = rotl32(h1, 13)
-	h1 = h1*5 + 0xe6546b64
-
-	return h1
+	m.h1 ^= k1
+	m.h1 = rotl32(m.h1, 13)
+	m.h1 = m.h1*5 + 0xe6546b64
 }
 
 func (m *murmur3) Write(data []byte) (int, os.Error) {
@@ -83,7 +81,7 @@ func (m *murmur3) Write(data []byte) (int, os.Error) {
 			k1 = uint32(m.t[0]) | uint32(data[0])<<8 | uint32(data[1])<<16 | uint32(data[2])<<24
 		}
 
-		m.h1 = update(m.h1, k1)
+		m.update(k1)
 
 		// we've used up some bytes
 		length -= need
@@ -98,7 +96,7 @@ func (m *murmur3) Write(data []byte) (int, os.Error) {
 
 	for i := 0; i < b; i += 4 {
 		k1 := uint32(data[i]) | uint32(data[i+1])<<8 | uint32(data[i+2])<<16 | uint32(data[i+3])<<24
-		m.h1 = update(m.h1, k1)
+		m.update(k1)
 	}
 
 	// copy the tail for later
