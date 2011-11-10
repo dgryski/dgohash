@@ -5,7 +5,6 @@
 package dgohash
 
 import (
-	"os" // for os.Error
 	"hash"
 )
 
@@ -34,7 +33,7 @@ func NewJava32() hash.Hash32 {
 	return new(javaStringHash32)
 }
 
-func (sh *javaStringHash32) Write(b []byte) (int, os.Error) {
+func (sh *javaStringHash32) Write(b []byte) (int, error) {
 	for _, c := range b {
 		sh.h = 31*sh.h + uint32(c)
 	}
@@ -54,7 +53,7 @@ func NewDjb32() hash.Hash32 {
 
 func (sh *djb2StringHash32) Reset() { sh.h = 5381 }
 
-func (sh *djb2StringHash32) Write(b []byte) (int, os.Error) {
+func (sh *djb2StringHash32) Write(b []byte) (int, error) {
 	for _, c := range b {
 		sh.h = 33*sh.h + uint32(c)
 	}
@@ -70,7 +69,7 @@ func NewElf32() hash.Hash32 {
 	return new(elf32StringHash32)
 }
 
-func (sh *elf32StringHash32) Write(b []byte) (int, os.Error) {
+func (sh *elf32StringHash32) Write(b []byte) (int, error) {
 
 	for _, c := range b {
 		sh.h = (sh.h << 4) + uint32(c)
@@ -93,7 +92,7 @@ func NewSDBM32() hash.Hash32 {
 	return new(sdbmStringHash32)
 }
 
-func (sh *sdbmStringHash32) Write(b []byte) (int, os.Error) {
+func (sh *sdbmStringHash32) Write(b []byte) (int, error) {
 	for _, c := range b {
 		sh.h = uint32(c) + (sh.h << 6) + (sh.h << 16) - sh.h
 	}
@@ -109,7 +108,7 @@ func NewSQLite32() hash.Hash32 {
 	return new(sqlite3StringHash32)
 }
 
-func (sh *sqlite3StringHash32) Write(b []byte) (int, os.Error) {
+func (sh *sqlite3StringHash32) Write(b []byte) (int, error) {
 	for _, c := range b {
 		sh.h = (sh.h << 3) ^ sh.h ^ uint32(c)
 	}
@@ -125,7 +124,7 @@ func NewJenkins32() hash.Hash32 {
 	return new(jenkinsStringHash32)
 }
 
-func (sh *jenkinsStringHash32) Write(b []byte) (int, os.Error) {
+func (sh *jenkinsStringHash32) Write(b []byte) (int, error) {
 	for _, c := range b {
 		sh.h += uint32(c)
 		sh.h += (sh.h << 10)

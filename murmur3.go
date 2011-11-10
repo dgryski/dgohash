@@ -9,7 +9,6 @@ package dgohash
 
 import (
 	"hash"
-	"os"
 )
 
 // rotate x left by r bits
@@ -46,7 +45,7 @@ func (m *murmur3) update(k1 uint32) {
 	m.h1 = m.h1*5 + 0xe6546b64
 }
 
-func (m *murmur3) Write(data []byte) (int, os.Error) {
+func (m *murmur3) Write(data []byte) (int, error) {
 
 	length := len(data)
 

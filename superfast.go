@@ -13,7 +13,6 @@ package dgohash
 
 import (
 	"hash"
-	"os"
 )
 
 type superfast struct {
@@ -39,7 +38,7 @@ func (m *superfast) update(k1, k2 uint32) {
 }
 
 // virtually identical to murmur3:Write()
-func (m *superfast) Write(data []byte) (int, os.Error) {
+func (m *superfast) Write(data []byte) (int, error) {
 
 	length := len(data)
 
