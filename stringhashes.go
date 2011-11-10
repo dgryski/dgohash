@@ -9,9 +9,6 @@ import (
 	"hash"
 )
 
-// TODO: add mumblehash3
-// TODO: add superfasthash
-
 type stringHash32 struct {
 	h uint32
 }
