@@ -4,8 +4,10 @@
 package dgohash
 
 import (
-	"testing"
+	"bytes"
+	"encoding/binary"
 	"hash"
+	"testing"
 )
 
 type _Golden struct {
@@ -16,38 +18,38 @@ type _Golden struct {
 // These tables were all generated from reference C implementations of the associated hashes.
 
 var golden_java = []_Golden{
-   {0x00000000,""},
-   {0x00000061,"a"},
-   {0x00000c21,"ab"},
-   {0x00017862,"abc"},
-   {0x002d9442,"abcd"},
-   {0x0584f463,"abcde"},
-   {0xab199863,"abcdef"},
-   {0xb8197464,"abcdefg"},
-   {0x4b151884,"abcdefgh"},
-   {0x178df865,"abcdefghi"},
-   {0xda3114a5,"abcdefghij"},
-   {0x507cbe5d,"Discard medicine more than two years old."},
-   {0xcf8332bc,"He who has a shady past knows that nice guys finish last."},
-   {0x94ddaa0e,"I wouldn't marry him with a ten foot pole."},
-   {0xd1a67f32,"Free! Free!/A trip/to Mars/for 900/empty jars/Burma Shave"},
-   {0x29e1993d,"The days of the digital watch are numbered.  -Tom Stoppard"},
-   {0x46b8e871,"Nepal premier won't resign."},
-   {0x80a347dc,"For every action there is an equal and opposite government program."},
-   {0xb560b45d,"His money is twice tainted: 'taint yours and 'taint mine."},
-   {0x123c79c6,"There is no reason for any individual to have a computer in their home. -Ken Olsen, 1977"},
-   {0x3f1ff283,"It's a tiny change to the code and not completely disgusting. - Bob Manchek"},
-   {0xbf045f20,"size:  a.out:  bad magic"},
-   {0x30642382,"The major problem is with sendmail.  -Mark Horton"},
-   {0xf11f3607,"Give me a rock, paper and scissors and I will move the world.  CCFestoon"},
-   {0xb68626c4,"If the enemy is within range, then so are you."},
-   {0x872d8aba,"It's well we cannot hear the screams/That we create in others' dreams."},
-   {0xd68213e8,"You remind me of a TV show, but that's all right: I watch it anyway."},
-   {0xd55e6f3e,"C is as portable as Stonehedge!!"},
-   {0xb34d3565,"Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"},
-   {0x1f5a0d48,"The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
-   {0xda3df8dd,"How can you write a big system without C++?  -Paul Glick"},
-};
+	{0x00000000, ""},
+	{0x00000061, "a"},
+	{0x00000c21, "ab"},
+	{0x00017862, "abc"},
+	{0x002d9442, "abcd"},
+	{0x0584f463, "abcde"},
+	{0xab199863, "abcdef"},
+	{0xb8197464, "abcdefg"},
+	{0x4b151884, "abcdefgh"},
+	{0x178df865, "abcdefghi"},
+	{0xda3114a5, "abcdefghij"},
+	{0x507cbe5d, "Discard medicine more than two years old."},
+	{0xcf8332bc, "He who has a shady past knows that nice guys finish last."},
+	{0x94ddaa0e, "I wouldn't marry him with a ten foot pole."},
+	{0xd1a67f32, "Free! Free!/A trip/to Mars/for 900/empty jars/Burma Shave"},
+	{0x29e1993d, "The days of the digital watch are numbered.  -Tom Stoppard"},
+	{0x46b8e871, "Nepal premier won't resign."},
+	{0x80a347dc, "For every action there is an equal and opposite government program."},
+	{0xb560b45d, "His money is twice tainted: 'taint yours and 'taint mine."},
+	{0x123c79c6, "There is no reason for any individual to have a computer in their home. -Ken Olsen, 1977"},
+	{0x3f1ff283, "It's a tiny change to the code and not completely disgusting. - Bob Manchek"},
+	{0xbf045f20, "size:  a.out:  bad magic"},
+	{0x30642382, "The major problem is with sendmail.  -Mark Horton"},
+	{0xf11f3607, "Give me a rock, paper and scissors and I will move the world.  CCFestoon"},
+	{0xb68626c4, "If the enemy is within range, then so are you."},
+	{0x872d8aba, "It's well we cannot hear the screams/That we create in others' dreams."},
+	{0xd68213e8, "You remind me of a TV show, but that's all right: I watch it anyway."},
+	{0xd55e6f3e, "C is as portable as Stonehedge!!"},
+	{0xb34d3565, "Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"},
+	{0x1f5a0d48, "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"},
+	{0xda3df8dd, "How can you write a big system without C++?  -Paul Glick"},
+}
 
 var golden_djb32 = []_Golden{
 	{0x00001505, ""},
@@ -386,5 +388,39 @@ func testGolden(t *testing.T, h hash.Hash32, golden []_Golden, which string) {
 		if sum != g.out {
 			t.Errorf("%s(%s) = 0x%x want 0x%x", which, g.in, sum, g.out)
 		}
+
+		bsum := h.Sum(nil)
+
+		if len(bsum) != 4 {
+			t.Errorf("%s Sum(nil) returned %d bytes, wanted 4: %s\n", len(bsum), bsum)
+		}
+
+		buf := bytes.NewBuffer(bsum)
+
+		var s uint32
+
+		binary.Read(buf, binary.BigEndian, &s)
+
+		if s != sum {
+			t.Errorf("%s(%s).Sum(nil) = 0x%x want 0x%x", which, g.in, sum, g.out)
+		}
+
+		bsum = h.Sum([]byte{0x01, 0x02, 0x03, 0x04})
+
+		if len(bsum) != 8 {
+			t.Errorf("%s Sum(bsum) returned %d bytes, wanted 8: %s\n", len(bsum), bsum)
+		}
+
+		buf = bytes.NewBuffer(bsum)
+
+		var s2 uint32
+
+		binary.Read(buf, binary.BigEndian, &s)
+		binary.Read(buf, binary.BigEndian, &s2)
+
+		if s != 0x01020304 || s2 != sum {
+			t.Errorf("%s(%s).Sum(bsum) = %s (expected 0x01020304 %x )", which, g.in, bsum, sum)
+		}
+
 	}
 }

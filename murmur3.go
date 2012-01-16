@@ -109,14 +109,17 @@ func (m *murmur3) Write(data []byte) (int, error) {
 	return length, nil
 }
 
-func (m *murmur3) Sum() []byte {
+func (m *murmur3) Sum(b []byte) []byte {
 	h1 := m.Sum32()
 	p := make([]byte, 4)
 	p[0] = byte(h1 >> 24)
 	p[1] = byte(h1 >> 16)
 	p[2] = byte(h1 >> 8)
 	p[3] = byte(h1)
-	return p
+	if b == nil {
+		return p
+	}
+	return append(b, p...)
 }
 
 // murmur3 finalize step

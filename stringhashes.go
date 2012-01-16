@@ -15,13 +15,18 @@ type stringHash32 struct {
 func (sh *stringHash32) Size() int     { return 4 }
 func (sh *stringHash32) Sum32() uint32 { return sh.h }
 func (sh *stringHash32) Reset()        { sh.h = 0 }
-func (sh *stringHash32) Sum() []byte {
+func (sh *stringHash32) Sum(b []byte) []byte {
 	p := make([]byte, 4)
 	p[0] = byte(sh.h >> 24)
 	p[1] = byte(sh.h >> 16)
 	p[2] = byte(sh.h >> 8)
 	p[3] = byte(sh.h)
-	return p
+
+	if b == nil {
+		return p
+	}
+
+	return append(b, p...)
 }
 
 type javaStringHash32 struct {
@@ -145,7 +150,7 @@ func (sh *jenkinsStringHash32) Sum32() uint32 {
 }
 
 // This is a duplicate of stringHash32 Sum(), above, but is needed because otherwise a call to Sum() will call stringHash32.Sum32(), and not the Jenkins' finalize
-func (sh *jenkinsStringHash32) Sum() []byte {
+func (sh *jenkinsStringHash32) Sum(b []byte) []byte {
 
 	h := sh.Sum32()
 
@@ -154,5 +159,10 @@ func (sh *jenkinsStringHash32) Sum() []byte {
 	p[1] = byte(h >> 16)
 	p[2] = byte(h >> 8)
 	p[3] = byte(h)
-	return p
+
+	if b == nil {
+		return p
+	}
+
+	return append(b, p...)
 }
