@@ -408,7 +408,7 @@ func testGolden(t *testing.T, h hash.Hash32, golden []_Golden, which string) {
 		bsum = h.Sum([]byte{0x01, 0x02, 0x03, 0x04})
 
 		if len(bsum) != 8 {
-			t.Errorf("%s Sum(bsum) returned %d bytes, wanted 8: %s\n", len(bsum), bsum)
+			t.Errorf("%s Sum(bsum) returned %d bytes, wanted 8: %x\n", len(bsum), bsum)
 		}
 
 		buf = bytes.NewBuffer(bsum)
@@ -419,7 +419,7 @@ func testGolden(t *testing.T, h hash.Hash32, golden []_Golden, which string) {
 		binary.Read(buf, binary.BigEndian, &s2)
 
 		if s != 0x01020304 || s2 != sum {
-			t.Errorf("%s(%s).Sum(bsum) = %s (expected 0x01020304 %x )", which, g.in, bsum, sum)
+			t.Errorf("%s(%s).Sum(bsum) = %x (expected 0x01020304 %x )", which, g.in, bsum, sum)
 		}
 
 	}
