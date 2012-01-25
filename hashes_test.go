@@ -4,7 +4,6 @@
 package dgohash
 
 import (
-	"bytes"
 	"encoding/binary"
 	"hash"
 	"testing"
@@ -395,11 +394,7 @@ func testGolden(t *testing.T, h hash.Hash32, golden []_Golden, which string) {
 			t.Errorf("%s Sum(nil) returned %d bytes, wanted 4: %s\n", len(bsum), bsum)
 		}
 
-		buf := bytes.NewBuffer(bsum)
-
-		var s uint32
-
-		binary.Read(buf, binary.BigEndian, &s)
+		s := binary.BigEndian.Uint32(bsum)
 
 		if s != sum {
 			t.Errorf("%s(%s).Sum(nil) = 0x%x want 0x%x", which, g.in, sum, g.out)
@@ -411,12 +406,8 @@ func testGolden(t *testing.T, h hash.Hash32, golden []_Golden, which string) {
 			t.Errorf("%s Sum(bsum) returned %d bytes, wanted 8: %x\n", len(bsum), bsum)
 		}
 
-		buf = bytes.NewBuffer(bsum)
-
-		var s2 uint32
-
-		binary.Read(buf, binary.BigEndian, &s)
-		binary.Read(buf, binary.BigEndian, &s2)
+		s = binary.BigEndian.Uint32(bsum[0:])
+		s2 := binary.BigEndian.Uint32(bsum[4:])
 
 		if s != 0x01020304 || s2 != sum {
 			t.Errorf("%s(%s).Sum(bsum) = %x (expected 0x01020304 %x )", which, g.in, bsum, sum)
