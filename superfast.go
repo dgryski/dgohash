@@ -21,8 +21,9 @@ type superfast struct {
 	rem int     // how many bytes in t[] are valid
 }
 
-func (m *superfast) Size() int { return 4 }
-func (m *superfast) Reset()    { m.h1 = uint32(0); m.rem = 0 }
+func (m *superfast) Size() int      { return 4 }
+func (m *superfast) BlockSize() int { return 4 }
+func (m *superfast) Reset()         { m.h1 = uint32(0); m.rem = 0 }
 
 // NewSuperFastHash returns a new hash.Hash32 object computing the incremental SuperFastHash
 func NewSuperFastHash() hash.Hash32 {

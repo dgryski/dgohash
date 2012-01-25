@@ -23,8 +23,9 @@ type murmur3 struct {
 	rem    int     // how many bytes in t[] are valid
 }
 
-func (m *murmur3) Size() int { return 4 }
-func (m *murmur3) Reset()    { m.h1 = uint32(0); m.length = 0; m.rem = 0 }
+func (m *murmur3) Size() int      { return 4 }
+func (m *murmur3) BlockSize() int { return 4 }
+func (m *murmur3) Reset()         { m.h1 = uint32(0); m.length = 0; m.rem = 0 }
 
 // NewMurmur3_x86_32 returns a new hash.Hash32 object computing the Murmur3 x86 32-bit hash
 func NewMurmur3_x86_32() hash.Hash32 {

@@ -12,9 +12,10 @@ type stringHash32 struct {
 	h uint32
 }
 
-func (sh *stringHash32) Size() int     { return 4 }
-func (sh *stringHash32) Sum32() uint32 { return sh.h }
-func (sh *stringHash32) Reset()        { sh.h = 0 }
+func (sh *stringHash32) Size() int      { return 4 }
+func (sh *stringHash32) BlockSize() int { return 1 }
+func (sh *stringHash32) Sum32() uint32  { return sh.h }
+func (sh *stringHash32) Reset()         { sh.h = 0 }
 func (sh *stringHash32) Sum(b []byte) []byte {
 	p := make([]byte, 4)
 	p[0] = byte(sh.h >> 24)
