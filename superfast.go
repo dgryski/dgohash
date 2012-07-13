@@ -53,10 +53,8 @@ func (m *superfast) Write(data []byte) (int, error) {
 		need := 4 - m.rem
 
 		if length < need {
-			for i := 0; i < length; i++ {
-				m.t[m.rem] = data[i]
-				m.rem++
-			}
+			copy(m.t[m.rem:], data[:length])
+			m.rem += length
 
 			return length, nil
 		}
@@ -95,10 +93,7 @@ func (m *superfast) Write(data []byte) (int, error) {
 	}
 
 	// copy the tail for later
-	// this should probably be unrolled, since 0 <= rem <= 3
-	for i := 0; i < rem; i++ {
-		m.t[i] = data[b+i]
-	}
+	copy(m.t[:rem], data[b:])
 
 	m.rem = rem
 
