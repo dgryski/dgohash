@@ -376,6 +376,48 @@ func TestSuperFastHash(t *testing.T) {
 
 }
 
+func BenchmarkJava32(b *testing.B) {
+	commonBench(b, NewJava32(), golden_java)
+}
+
+func BenchmarkDJB(b *testing.B) {
+	commonBench(b, NewDjb32(), golden_djb32)
+}
+
+func BenchmarkElf32(b *testing.B) {
+	commonBench(b, NewElf32(), golden_elf32)
+}
+
+func BenchmarkJenkins32(b *testing.B) {
+	commonBench(b, NewJenkins32(), golden_jenkins)
+}
+
+func BenchmarkMurmur(b *testing.B) {
+	commonBench(b, NewMurmur3_x86_32(), golden_murmur3)
+}
+
+func BenchmarkSDBM32(b *testing.B) {
+	commonBench(b, NewSDBM32(), golden_sdbm)
+}
+
+func BenchmarkSQLite32(b *testing.B) {
+	commonBench(b, NewSQLite32(), golden_sqlite)
+}
+
+func BenchmarkSuperFastHash(b *testing.B) {
+	commonBench(b, NewSuperFastHash(), golden_superfast)
+}
+
+func commonBench(b *testing.B, h hash.Hash32, golden []_Golden) {
+	for i := 0; i < b.N; i++ {
+		for _, g := range golden {
+			h.Reset()
+			h.Write([]byte(g.in))
+			h.Sum32()
+		}
+	}
+}
+
 func testGolden(t *testing.T, h hash.Hash32, golden []_Golden, which string) {
 
 	for _, g := range golden {
