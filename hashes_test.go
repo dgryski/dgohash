@@ -395,6 +395,10 @@ func BenchmarkJenkins32(b *testing.B) {
 	commonBench(b, NewJenkins32(), golden_jenkins)
 }
 
+func BenchmarkMarvin32(b *testing.B) {
+	commonBench(b, NewMarvin32(0), golden_marvin)
+}
+
 func BenchmarkMurmur(b *testing.B) {
 	commonBench(b, NewMurmur3_x86_32(), golden_murmur3)
 }
