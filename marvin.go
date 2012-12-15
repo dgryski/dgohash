@@ -36,6 +36,7 @@ func marvin_update(lo, hi, v uint32) (uint32, uint32) {
 	return lo, hi
 }
 
+// NewMarvin32 returns a new hash.Hash32 object computing Microsoft's InternalMarvin32HashString seeded hash.
 func NewMarvin32(seed uint64) hash.Hash32 {
 	m := new(marvin)
 	m.seed = seed

@@ -1,3 +1,12 @@
 This library is a collection of "well-known" 32-bit string hashes, implemented in Go.
 
-It includes djb2, ELF-32, Jenkins' One-At-A-Time, Murmur3/32, SuperFastHash, and others.
+It includes:
+    Java string hash
+    ELF-32
+    Jenkins' One-At-A-Time
+    Marvin32
+    Murmur3/32
+    SDBM
+    SQLite3
+    SuperFastHash
+    djb2
