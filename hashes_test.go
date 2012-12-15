@@ -316,28 +316,8 @@ func TestMurmur(t *testing.T) {
 
 	// test the incremental hashing logic
 	m := NewMurmur3_x86_32()
-	m.Write([]byte("hello"))
-	m.Write([]byte("h"))
-	m.Write([]byte("e"))
-	m.Write([]byte("l"))
-	m.Write([]byte("l"))
-	m.Write([]byte("o"))
-	m.Write([]byte("hellohello"))
 
-	h := m.Sum32()
-
-	if h != 0xe0c9df28 {
-		t.Errorf("murmur3 incremental failed: got %08x", h)
-	}
-
-	m.Reset()
-	m.Write([]byte("hellohellohellohello"))
-
-	h = m.Sum32()
-
-	if h != 0xe0c9df28 {
-		t.Errorf("murmur3 failed: got %08x", h)
-	}
+	testIncremental(t, m, 0xe0c9df28, "murmur3")
 
 	testGolden(t, m, golden_murmur3, "murmur3")
 
@@ -349,31 +329,10 @@ func TestSuperFastHash(t *testing.T) {
 
 	// test the incremental hashing logic
 	m := NewSuperFastHash()
-	m.Write([]byte("hello"))
-	m.Write([]byte("h"))
-	m.Write([]byte("e"))
-	m.Write([]byte("l"))
-	m.Write([]byte("l"))
-	m.Write([]byte("o"))
-	m.Write([]byte("hellohello"))
 
-	h := m.Sum32()
-
-	if h != 0x54de96ed {
-		t.Errorf("superfast: incremental failed: got %08x", h)
-	}
-
-	m.Reset()
-	m.Write([]byte("hellohellohellohello"))
-
-	h = m.Sum32()
-
-	if h != 0x54de96ed {
-		t.Errorf("superfast failed: got %08x", h)
-	}
+	testIncremental(t, m, 0x54de96ed, "superfast")
 
 	testGolden(t, m, golden_superfast, "superfast")
-
 }
 
 func BenchmarkJava32(b *testing.B) {
@@ -415,6 +374,34 @@ func commonBench(b *testing.B, h hash.Hash32, golden []_Golden) {
 			h.Write([]byte(g.in))
 			h.Sum32()
 		}
+	}
+}
+
+func testIncremental(t *testing.T, h hash.Hash32, result uint32, which string) {
+
+	h.Reset()
+
+	h.Write([]byte("hello"))
+	h.Write([]byte("h"))
+	h.Write([]byte("e"))
+	h.Write([]byte("l"))
+	h.Write([]byte("l"))
+	h.Write([]byte("o"))
+	h.Write([]byte("hellohello"))
+
+	h32 := h.Sum32()
+
+	if h32 != result {
+		t.Errorf("%s: incremental failed: got %08x", which, h32)
+	}
+
+	h.Reset()
+	h.Write([]byte("hellohellohellohello"))
+
+	h32 = h.Sum32()
+
+	if h32 != result {
+		t.Errorf("%s: failed: got %08x", which, h32)
 	}
 }
 
