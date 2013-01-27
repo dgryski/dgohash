@@ -26,16 +26,6 @@ func (st *marvin) update(v uint32) {
 	st.hi = rotl32(st.hi, 19)
 }
 
-func marvin_update(lo, hi, v uint32) (uint32, uint32) {
-	lo += v
-	hi ^= lo
-	lo = rotl32(lo, 20) + hi
-	hi = rotl32(hi, 9) ^ lo
-	lo = rotl32(lo, 27) + hi
-	hi = rotl32(hi, 19)
-	return lo, hi
-}
-
 // NewMarvin32 returns a new hash.Hash32 object computing Microsoft's InternalMarvin32HashString seeded hash.
 func NewMarvin32(seed uint64) hash.Hash32 {
 	m := new(marvin)
@@ -125,24 +115,23 @@ func (m *marvin) Sum32() uint32 {
 	final := uint32(0x80)
 
 	// copy so as not to change the internal state
-	lo := m.lo
-	hi := m.hi
+	m_tmp := *m
 
-	switch m.rem {
+	switch m_tmp.rem {
 
 	case 3:
-		final = (final << 8) | uint32(m.t[2])
+		final = (final << 8) | uint32(m_tmp.t[2])
 		fallthrough
 	case 2:
-		final = (final << 8) | uint32(m.t[1])
+		final = (final << 8) | uint32(m_tmp.t[1])
 		fallthrough
 	case 1:
-		final = (final << 8) | uint32(m.t[0])
+		final = (final << 8) | uint32(m_tmp.t[0])
 		fallthrough
 	}
 
-	lo, hi = marvin_update(lo, hi, final)
-	lo, hi = marvin_update(lo, hi, 0)
+	m_tmp.update(final)
+	m_tmp.update(0)
 
-	return lo ^ hi
+	return m_tmp.lo ^ m_tmp.hi
 }
