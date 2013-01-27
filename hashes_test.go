@@ -468,7 +468,7 @@ func testGolden(t *testing.T, h hash.Hash32, golden []_Golden, which string) {
 		bsum := h.Sum(nil)
 
 		if len(bsum) != 4 {
-			t.Errorf("%s Sum(nil) returned %d bytes, wanted 4: %s\n", len(bsum), bsum)
+			t.Errorf("%s Sum(nil) returned %d bytes, wanted 4: %s\n", which, len(bsum), bsum)
 		}
 
 		s := binary.BigEndian.Uint32(bsum)
@@ -480,7 +480,7 @@ func testGolden(t *testing.T, h hash.Hash32, golden []_Golden, which string) {
 		bsum = h.Sum([]byte{0x01, 0x02, 0x03, 0x04})
 
 		if len(bsum) != 8 {
-			t.Errorf("%s Sum(bsum) returned %d bytes, wanted 8: %x\n", len(bsum), bsum)
+			t.Errorf("%s Sum(bsum) returned %d bytes, wanted 8: %x\n", which, len(bsum), bsum)
 		}
 
 		s = binary.BigEndian.Uint32(bsum[0:])
