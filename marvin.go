@@ -127,7 +127,6 @@ func (m *marvin) Sum32() uint32 {
 		fallthrough
 	case 1:
 		final = (final << 8) | uint32(m_tmp.t[0])
-		fallthrough
 	}
 
 	m_tmp.update(final)
