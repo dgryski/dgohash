@@ -1,4 +1,4 @@
-// This file is an implementation of the murmur3 x86_32 hash function by Austin Appleby 
+// This file is an implementation of the murmur3 x86_32 hash function by Austin Appleby
 // The code is translated from the public domain source code at http://code.google.com/p/smhasher/source/browse/trunk/MurmurHash3.cpp
 // This implementation Copyright (c) 2011 Damian Gryski <damian@gryski.com>
 // Licensed under the GPLv3, or at your option any later version
