@@ -170,7 +170,7 @@ func (sh *sqlite3StringHash32) Write(b []byte) (int, error) {
 
 type jenkinsStringHash32 uint32
 
-// NewJenkinsStringHash32 returns a new hash.Hash32 object, computing the Robert Jenkins' one-at-a-time string hash function
+// NewJenkins32 returns a new hash.Hash32 object, computing the Robert Jenkins' one-at-a-time string hash function
 func NewJenkins32() hash.Hash32 {
 	var s = jenkinsStringHash32(0)
 	return &s
