@@ -115,22 +115,22 @@ func (m *marvin) Sum32() uint32 {
 	final := uint32(0x80)
 
 	// copy so as not to change the internal state
-	m_tmp := *m
+	mTmp := *m
 
-	switch m_tmp.rem {
+	switch mTmp.rem {
 
 	case 3:
-		final = (final << 8) | uint32(m_tmp.t[2])
+		final = (final << 8) | uint32(mTmp.t[2])
 		fallthrough
 	case 2:
-		final = (final << 8) | uint32(m_tmp.t[1])
+		final = (final << 8) | uint32(mTmp.t[1])
 		fallthrough
 	case 1:
-		final = (final << 8) | uint32(m_tmp.t[0])
+		final = (final << 8) | uint32(mTmp.t[0])
 	}
 
-	m_tmp.update(final)
-	m_tmp.update(0)
+	mTmp.update(final)
+	mTmp.update(0)
 
-	return m_tmp.lo ^ m_tmp.hi
+	return mTmp.lo ^ mTmp.hi
 }
