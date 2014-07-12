@@ -16,7 +16,7 @@ type _Golden struct {
 
 // These tables were all generated from reference C implementations of the associated hashes.
 
-var golden_java = []_Golden{
+var goldenJava = []_Golden{
 	{0x00000000, ""},
 	{0x00000061, "a"},
 	{0x00000c21, "ab"},
@@ -50,7 +50,7 @@ var golden_java = []_Golden{
 	{0xda3df8dd, "How can you write a big system without C++?  -Paul Glick"},
 }
 
-var golden_djb32 = []_Golden{
+var goldenDjb32 = []_Golden{
 	{0x00001505, ""},
 	{0x0002b606, "a"},
 	{0x00597728, "ab"},
@@ -84,7 +84,7 @@ var golden_djb32 = []_Golden{
 	{0x9f8d455a, "How can you write a big system without C++?  -Paul Glick"},
 }
 
-var golden_elf32 = []_Golden{
+var goldenElf32 = []_Golden{
 	{0x00000000, ""},
 	{0x00000061, "a"},
 	{0x00000672, "ab"},
@@ -118,7 +118,7 @@ var golden_elf32 = []_Golden{
 	{0x0810f11b, "How can you write a big system without C++?  -Paul Glick"},
 }
 
-var golden_sdbm = []_Golden{
+var goldenSdbm = []_Golden{
 	{0x00000000, ""},
 	{0x00000061, "a"},
 	{0x00611841, "ab"},
@@ -152,7 +152,7 @@ var golden_sdbm = []_Golden{
 	{0x2129ea9d, "How can you write a big system without C++?  -Paul Glick"},
 }
 
-var golden_sqlite = []_Golden{
+var goldenSqlite = []_Golden{
 	{0x00000000, ""},
 	{0x00000061, "a"},
 	{0x0000030b, "ab"},
@@ -186,7 +186,7 @@ var golden_sqlite = []_Golden{
 	{0xb1d7f9e5, "How can you write a big system without C++?  -Paul Glick"},
 }
 
-var golden_jenkins = []_Golden{
+var goldenJenkins = []_Golden{
 	{0x00000000, ""},
 	{0xca2e9442, "a"},
 	{0x45e61e58, "ab"},
@@ -220,7 +220,7 @@ var golden_jenkins = []_Golden{
 	{0x2d3ac755, "How can you write a big system without C++?  -Paul Glick"},
 }
 
-var golden_murmur3 = []_Golden{
+var goldenMurmur3 = []_Golden{
 	{0x00000000, ""},
 	{0x3c2569b2, "a"},
 	{0x9bbfd75f, "ab"},
@@ -254,7 +254,7 @@ var golden_murmur3 = []_Golden{
 	{0x04944630, "How can you write a big system without C++?  -Paul Glick"},
 }
 
-var golden_superfast = []_Golden{
+var goldenSuperfast = []_Golden{
 	{0x00000000, ""},
 	{0x93642e87, "a"},
 	{0x5b8c0ec3, "ab"},
@@ -288,7 +288,7 @@ var golden_superfast = []_Golden{
 	{0x494c35dd, "How can you write a big system without C++?  -Paul Glick"},
 }
 
-var golden_marvin = []_Golden{
+var goldenMarvin = []_Golden{
 	{0xf7f2c954, ""},
 	{0xd46e71f7, "a"},
 	{0xb40c651c, "ab"},
@@ -323,27 +323,27 @@ var golden_marvin = []_Golden{
 }
 
 func TestJava(t *testing.T) {
-	testGolden(t, NewJava32(), golden_java, "java")
+	testGolden(t, NewJava32(), goldenJava, "java")
 }
 
 func TestDbj32(t *testing.T) {
-	testGolden(t, NewDjb32(), golden_djb32, "djb")
+	testGolden(t, NewDjb32(), goldenDjb32, "djb")
 }
 
 func TestElf32(t *testing.T) {
-	testGolden(t, NewElf32(), golden_elf32, "elf32")
+	testGolden(t, NewElf32(), goldenElf32, "elf32")
 }
 
 func TestSDBM(t *testing.T) {
-	testGolden(t, NewSDBM32(), golden_sdbm, "sdbm")
+	testGolden(t, NewSDBM32(), goldenSdbm, "sdbm")
 }
 
 func TestSqlite3(t *testing.T) {
-	testGolden(t, NewSQLite32(), golden_sqlite, "sqlite3")
+	testGolden(t, NewSQLite32(), goldenSqlite, "sqlite3")
 }
 
 func TestJenkins(t *testing.T) {
-	testGolden(t, NewJenkins32(), golden_jenkins, "jenkins")
+	testGolden(t, NewJenkins32(), goldenJenkins, "jenkins")
 }
 
 func TestMurmur(t *testing.T) {
@@ -353,7 +353,7 @@ func TestMurmur(t *testing.T) {
 
 	testIncremental(t, m, 0xe0c9df28, "murmur3")
 
-	testGolden(t, m, golden_murmur3, "murmur3")
+	testGolden(t, m, goldenMurmur3, "murmur3")
 
 	// add murmur's own verification test here?
 
@@ -366,7 +366,7 @@ func TestSuperFastHash(t *testing.T) {
 
 	testIncremental(t, m, 0x54de96ed, "superfast")
 
-	testGolden(t, m, golden_superfast, "superfast")
+	testGolden(t, m, goldenSuperfast, "superfast")
 }
 
 func TestMarvin(t *testing.T) {
@@ -376,43 +376,43 @@ func TestMarvin(t *testing.T) {
 	// test the incremental hashing logic
 	testIncremental(t, m, 0x28685e7a, "marvin")
 
-	testGolden(t, m, golden_marvin, "marvin")
+	testGolden(t, m, goldenMarvin, "marvin")
 }
 
 func BenchmarkJava32(b *testing.B) {
-	commonBench(b, NewJava32(), golden_java)
+	commonBench(b, NewJava32(), goldenJava)
 }
 
 func BenchmarkDJB(b *testing.B) {
-	commonBench(b, NewDjb32(), golden_djb32)
+	commonBench(b, NewDjb32(), goldenDjb32)
 }
 
 func BenchmarkElf32(b *testing.B) {
-	commonBench(b, NewElf32(), golden_elf32)
+	commonBench(b, NewElf32(), goldenElf32)
 }
 
 func BenchmarkJenkins32(b *testing.B) {
-	commonBench(b, NewJenkins32(), golden_jenkins)
+	commonBench(b, NewJenkins32(), goldenJenkins)
 }
 
 func BenchmarkMarvin32(b *testing.B) {
-	commonBench(b, NewMarvin32(0), golden_marvin)
+	commonBench(b, NewMarvin32(0), goldenMarvin)
 }
 
 func BenchmarkMurmur(b *testing.B) {
-	commonBench(b, NewMurmur3_x86_32(), golden_murmur3)
+	commonBench(b, NewMurmur3_x86_32(), goldenMurmur3)
 }
 
 func BenchmarkSDBM32(b *testing.B) {
-	commonBench(b, NewSDBM32(), golden_sdbm)
+	commonBench(b, NewSDBM32(), goldenSdbm)
 }
 
 func BenchmarkSQLite32(b *testing.B) {
-	commonBench(b, NewSQLite32(), golden_sqlite)
+	commonBench(b, NewSQLite32(), goldenSqlite)
 }
 
 func BenchmarkSuperFastHash(b *testing.B) {
-	commonBench(b, NewSuperFastHash(), golden_superfast)
+	commonBench(b, NewSuperFastHash(), goldenSuperfast)
 }
 
 func commonBench(b *testing.B, h hash.Hash32, golden []_Golden) {
