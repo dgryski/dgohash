@@ -17,13 +17,13 @@ type marvin struct {
 	rem    int     // how many bytes in t[] are valid
 }
 
-func (st *marvin) update(v uint32) {
-	st.lo += v
-	st.hi ^= st.lo
-	st.lo = rotl32(st.lo, 20) + st.hi
-	st.hi = rotl32(st.hi, 9) ^ st.lo
-	st.lo = rotl32(st.lo, 27) + st.hi
-	st.hi = rotl32(st.hi, 19)
+func (m *marvin) update(v uint32) {
+	m.lo += v
+	m.hi ^= m.lo
+	m.lo = rotl32(m.lo, 20) + m.hi
+	m.hi = rotl32(m.hi, 9) ^ m.lo
+	m.lo = rotl32(m.lo, 27) + m.hi
+	m.hi = rotl32(m.hi, 19)
 }
 
 // NewMarvin32 returns a new hash.Hash32 object computing Microsoft's InternalMarvin32HashString seeded hash.
