@@ -430,12 +430,11 @@ func testIncremental(t *testing.T, h hash.Hash32, result uint32, which string) {
 	h.Reset()
 
 	var parts = []string{
-		"hello",
 		"h",
-		"e",
-		"l",
-		"l",
+		"ell",
 		"o",
+		"he",
+		"llo",
 		"hellohello",
 	}
 
