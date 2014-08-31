@@ -429,13 +429,22 @@ func testIncremental(t *testing.T, h hash.Hash32, result uint32, which string) {
 
 	h.Reset()
 
-	h.Write([]byte("hello"))
-	h.Write([]byte("h"))
-	h.Write([]byte("e"))
-	h.Write([]byte("l"))
-	h.Write([]byte("l"))
-	h.Write([]byte("o"))
-	h.Write([]byte("hellohello"))
+	var parts = []string{
+		"hello",
+		"h",
+		"e",
+		"l",
+		"l",
+		"o",
+		"hellohello",
+	}
+
+	for _, p := range parts {
+		l, _ := h.Write([]byte(p))
+		if l != len(p) {
+			t.Errorf("Write(%d bytes) = %d, want %d\n", len(p), l, len(p))
+		}
+	}
 
 	h32 := h.Sum32()
 

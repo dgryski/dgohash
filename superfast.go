@@ -41,7 +41,9 @@ func (m *superfast) update(k1, k2 uint32) {
 // virtually identical to murmur3:Write()
 func (m *superfast) Write(data []byte) (int, error) {
 
-	length := len(data)
+	datalen := len(data)
+
+	length := datalen
 
 	// Since the hash actually processes uint32s, but we allow []byte to be
 	// Written, we have to keep track of the tail bytes that haven't yet
@@ -97,7 +99,7 @@ func (m *superfast) Write(data []byte) (int, error) {
 
 	m.rem = rem
 
-	return length, nil
+	return datalen, nil
 }
 
 func (m *superfast) Sum(b []byte) []byte {

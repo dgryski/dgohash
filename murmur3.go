@@ -48,7 +48,9 @@ func (m *murmur3) update(k1 uint32) {
 
 func (m *murmur3) Write(data []byte) (int, error) {
 
-	length := len(data)
+	datalen := len(data)
+
+	length := datalen
 
 	m.length += uint32(length)
 
@@ -102,7 +104,7 @@ func (m *murmur3) Write(data []byte) (int, error) {
 
 	m.rem = rem
 
-	return length, nil
+	return datalen, nil
 }
 
 func (m *murmur3) Sum(b []byte) []byte {

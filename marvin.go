@@ -40,7 +40,9 @@ func (m *marvin) Reset()         { m.lo = uint32(m.seed); m.hi = uint32(m.seed >
 
 func (m *marvin) Write(data []byte) (int, error) {
 
-	length := len(data)
+	datalen := len(data)
+
+	length := datalen
 
 	// Since the hash actually processes uint32s, but we allow []byte to be
 	// Written, we have to keep track of the tail bytes that haven't yet
@@ -92,7 +94,7 @@ func (m *marvin) Write(data []byte) (int, error) {
 
 	m.rem = rem
 
-	return length, nil
+	return datalen, nil
 }
 
 func (m *marvin) Sum(b []byte) []byte {
