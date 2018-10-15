@@ -10,3 +10,4 @@ It includes:
     SQLite3
     SuperFastHash
     djb2
+    djb2a
